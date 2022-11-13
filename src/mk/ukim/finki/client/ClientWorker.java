@@ -23,12 +23,13 @@ public class ClientWorker extends Thread {
     @Override
     public void run() {
         try {
-            System.out.println("I am running on port " + this.socket.getLocalPort());
 
             // Max timeout is set to infinite, so we can have concurrent listening and sending of messages
             this.socket.setSoTimeout(0);
 
             if (listening) {
+                System.out.println("Listener thread started on port: " + this.socket.getLocalPort());
+
                 //noinspection InfiniteLoopStatement
                 while (true) {
                     byte[] buffer = new byte[ProtoConfig.DATA.getUDP_PACKET_SIZE()];
@@ -43,6 +44,8 @@ public class ClientWorker extends Thread {
                     handleMessage(message);
                 }
             } else {
+                System.out.println("Sending thread started on port: " + this.socket.getLocalPort());
+
                 testConnectionToServer(this.socket);
 
                 while (true) {
