@@ -33,6 +33,12 @@ Some protocol configuration properties are defined in the ProtoConfig.java Enum 
     - server listening port
     - constant messages used between the server and the client
 
+### Usage
+
+- Start the server by running the Server.java main function
+- Start as many clients as you want by running the ClientWorker.java main function
+  > *If you want to run multiple clients, make sure to enable the run option "Allow multiple instances" for the ClientWorker.java class (in the case of IntelliJ)*
+
 ## Example communication
 
 #### *Server console:*
@@ -51,7 +57,7 @@ Some protocol configuration properties are defined in the ProtoConfig.java Enum 
 > Sun Nov 13 16:07:06 CET 2022 /127.0.0.1 on port 57008 said: message:192029:Здраво и на тебе!  
 > Sun Nov 13 16:07:16 CET 2022 /127.0.0.1 on port 57008 said: logout  
 > Sun Nov 13 16:07:38 CET 2022 /127.0.0.1 on port 57007 said: message:hristijan:Whats up ?  
-> Sun Nov 13 16:07:43 CET 2022 /127.0.0.1 on port 57007 said: logout  
+> Sun Nov 13 16:07:43 CET 2022 /127.0.0.1 on port 57007 said: logout
 
 #### *Client 1 console:*
 
@@ -86,7 +92,7 @@ Some protocol configuration properties are defined in the ProtoConfig.java Enum 
 > end  
 > Exiting client...  
 > Disconnected from the target VM, address: '127.0.0.1:64063', transport: 'socket'    
-> Process finished with exit code 0  
+> Process finished with exit code 0
 
 #### *Client 2 console:*
 
