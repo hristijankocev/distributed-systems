@@ -1,4 +1,4 @@
-package mk.ukim.finki.config;
+package mk.ukim.finki.lab_01.config;
 
 public enum ProtoConfig {
     DATA;

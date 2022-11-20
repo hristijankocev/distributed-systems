@@ -1,6 +1,6 @@
-package mk.ukim.finki.client;
+package mk.ukim.finki.lab_01.client;
 
-import mk.ukim.finki.config.ProtoConfig;
+import mk.ukim.finki.lab_01.config.ProtoConfig;
 
 import java.io.IOException;
 import java.net.*;
