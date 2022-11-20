@@ -1,5 +1,7 @@
 package mk.ukim.finki.lab_02.client;
 
+import mk.ukim.finki.lab_02.classes.Message;
+
 import java.io.*;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -10,8 +12,8 @@ import java.util.Scanner;
 
 public class Client implements Runnable {
     private Socket socket;
-    private BufferedReader reader;
-    private PrintWriter writer;
+    private ObjectInputStream reader;
+    private ObjectOutputStream writer;
 
     public Client(InetAddress serverAddress, int serverPort) {
         try {
@@ -25,16 +27,20 @@ public class Client implements Runnable {
 
     @Override
     public void run() {
-        // First start a listener thread
-        startListener();
-
         System.out.printf("%s Started writer for client.\n", new Date());
         try {
             this.writer = getWriter();
+            startListener();
             Scanner scanner = new Scanner(System.in);
-            String message;
-            while (!(message = scanner.nextLine()).equals("disconnect")) {
-                this.writer.println(message);
+            String input;
+
+            mk.ukim.finki.lab_02.classes.Client client = new mk.ukim.finki.lab_02.classes.Client(this.socket.getInetAddress(), this.socket.getPort());
+
+            while (!(input = scanner.nextLine()).equals("disconnect")) {
+                Message message = new Message(input, client);
+
+                this.writer.writeObject(message);
+                this.writer.flush();
             }
             this.socket.close();
             System.exit(0);
@@ -53,14 +59,14 @@ public class Client implements Runnable {
         }
     }
 
-    private PrintWriter getWriter() throws IOException {
-        return new PrintWriter(this.socket.getOutputStream(), true);
+    private ObjectOutputStream getWriter() throws IOException {
+        OutputStream outputStream = new BufferedOutputStream(this.socket.getOutputStream());
+        return new ObjectOutputStream(outputStream);
     }
 
-    private BufferedReader getReader() throws IOException {
+    private ObjectInputStream getReader() throws IOException {
         InputStream inputStream = this.socket.getInputStream();
-        InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
-        return new BufferedReader(inputStreamReader);
+        return new ObjectInputStream(inputStream);
     }
 
 
