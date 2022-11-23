@@ -18,7 +18,7 @@ public class ClientWriter implements Runnable {
         while (true) {
             try {
                 Message incoming = (Message) this.objectInputStream.readObject();
-                System.out.println(new Date() + " Server said: " + incoming.getContent());
+                System.out.println(new Date() + " Server said:\n" + incoming.getContent());
             } catch (IOException e) {
                 System.out.printf("%s Listener thread exited.\n", new Date());
                 System.out.printf("%s Server probably closed the connection.\n", new Date());

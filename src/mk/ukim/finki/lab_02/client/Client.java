@@ -37,11 +37,11 @@ public class Client implements Runnable {
 
             mk.ukim.finki.lab_02.classes.Client client = new mk.ukim.finki.lab_02.classes.Client(this.socket.getLocalAddress(), this.socket.getLocalPort());
 
-            while (!(input = scanner.nextLine()).equals("disconnect")) {
-                Message message = new Message(input, client);
+            // Send a hello('help') just so the user knows what he can do
+            sendMessage("help", client);
 
-                this.writer.writeObject(message);
-                this.writer.flush();
+            while (!(input = scanner.nextLine()).equals("end")) {
+                sendMessage(input, client);
             }
 
             this.socket.close();
@@ -51,6 +51,12 @@ public class Client implements Runnable {
             e.printStackTrace();
         }
 
+    }
+
+    private void sendMessage(String messageContent, mk.ukim.finki.lab_02.classes.Client client) throws IOException {
+        Message message = new Message(messageContent, client);
+        this.writer.writeObject(message);
+        this.writer.flush();
     }
 
     private void startListener() {

@@ -38,4 +38,22 @@ public class Client implements Serializable {
                 ", port=" + port +
                 '}';
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Client)) return false;
+
+        Client client = (Client) o;
+
+        if (getPort() != client.getPort()) return false;
+        return getAddress().equals(client.getAddress());
+    }
+
+    @Override
+    public int hashCode() {
+        int result = getAddress().hashCode();
+        result = 31 * result + getPort();
+        return result;
+    }
 }
