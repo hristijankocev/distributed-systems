@@ -1,14 +1,20 @@
 package mk.ukim.finki.lab_02.server;
 
+import mk.ukim.finki.lab_02.classes.Client;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Date;
+import java.util.Hashtable;
 
 public class Server implements Runnable {
     private ServerSocket serverSocket;
 
+    private final Hashtable<String, Client> clients;
+
     public Server(int port) {
+        this.clients = new Hashtable<>();
         try {
             this.serverSocket = new ServerSocket(port);
             System.out.printf("%s Server started on port: %d\n", new Date(), port);
@@ -25,7 +31,7 @@ public class Server implements Runnable {
                 Socket socket = this.serverSocket.accept();
 
                 // Process the request on a new thread of a ServerWorker
-                new Thread(new ServerWorker(socket)).start();
+                new Thread(new ServerWorker(socket, this.clients)).start();
             }
         } catch (IOException e) {
             System.out.printf("%s Failed to accept a connection on port: %d\n", new Date(), this.serverSocket.getLocalPort());

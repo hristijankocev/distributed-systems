@@ -30,4 +30,12 @@ public class Client implements Serializable {
     public void setPort(int port) {
         this.port = port;
     }
+
+    @Override
+    public String toString() {
+        return "Client{" +
+                "address=" + address +
+                ", port=" + port +
+                '}';
+    }
 }

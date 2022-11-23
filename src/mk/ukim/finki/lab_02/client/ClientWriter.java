@@ -18,13 +18,13 @@ public class ClientWriter implements Runnable {
         while (true) {
             try {
                 Message incoming = (Message) this.objectInputStream.readObject();
-                System.out.println("Server said: " + incoming.getContent());
+                System.out.println(new Date() + " Server said: " + incoming.getContent());
             } catch (IOException e) {
-                System.out.printf("%s Listener thread failed.\n", new Date());
-                e.printStackTrace();
-                System.exit(1);
+                System.out.printf("%s Listener thread exited.\n", new Date());
+                System.out.printf("%s Server probably closed the connection.\n", new Date());
+                System.exit(0);
             } catch (ClassNotFoundException e) {
-                e.printStackTrace();
+                System.out.printf("%s I cannot understand what the server sent me :(", new Date());
             }
         }
     }

@@ -27,6 +27,7 @@ public class Client implements Runnable {
 
     @Override
     public void run() {
+        System.out.printf("%s I am using the port %d.\n", new Date(), this.socket.getLocalPort());
         System.out.printf("%s Started writer for client.\n", new Date());
         try {
             this.writer = getWriter();
@@ -34,7 +35,7 @@ public class Client implements Runnable {
             Scanner scanner = new Scanner(System.in);
             String input;
 
-            mk.ukim.finki.lab_02.classes.Client client = new mk.ukim.finki.lab_02.classes.Client(this.socket.getInetAddress(), this.socket.getPort());
+            mk.ukim.finki.lab_02.classes.Client client = new mk.ukim.finki.lab_02.classes.Client(this.socket.getLocalAddress(), this.socket.getLocalPort());
 
             while (!(input = scanner.nextLine()).equals("disconnect")) {
                 Message message = new Message(input, client);
@@ -42,7 +43,9 @@ public class Client implements Runnable {
                 this.writer.writeObject(message);
                 this.writer.flush();
             }
+
             this.socket.close();
+
             System.exit(0);
         } catch (IOException e) {
             e.printStackTrace();
