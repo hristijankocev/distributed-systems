@@ -10,7 +10,7 @@ the RabbitMQ exchange. The information consists of:
 
 Usage:
 
-- docker-compose up (to start up `RabbitMQ`)
+- `docker-compose up` (to start up **RabbitMQ**)
 - run the three consumers (`C1.java`, `C2.java`, `C3.java`)
 - run the emitter (`ActionEmitter.java`)
 
