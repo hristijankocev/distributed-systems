@@ -10,6 +10,7 @@ the RabbitMQ exchange. The information consists of:
 
 Usage:
 
+- make sure the maven dependencies are installed (ampq-client, slf4j-simple, slf4j-api)
 - `docker-compose up` (to start up **RabbitMQ**)
 - run the three consumers (`C1.java`, `C2.java`, `C3.java`)
 - run the emitter (`ActionEmitter.java`)
