@@ -32,7 +32,13 @@ public class ActionEmitter implements Runnable {
 
             producer.send(new ProducerRecord<>(randomTopic, date));
 
-            System.out.println(date + " [x] Sent to route: " + randomTopic);
+            System.out.println(date + " [x] Sent to topic: " + randomTopic);
+
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
 
             i++;
         }

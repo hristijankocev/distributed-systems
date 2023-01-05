@@ -27,6 +27,7 @@ public class KafkaSetup {
         props.put("value.deserializer", deserializer);
         props.put("key.serializer", serializer);
         props.put("value.serializer", serializer);
+        props.put("metadata.max.age.ms", "0");
     }
 
 }
