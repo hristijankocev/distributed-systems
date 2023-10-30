@@ -1,5 +1,7 @@
 package mk.ukim.finki.lab_01.server;
 
+import mk.ukim.finki.lab_01.ccmp.AES;
+import mk.ukim.finki.lab_01.config.CCMPConfig;
 import mk.ukim.finki.lab_01.config.ProtoConfig;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -9,10 +11,8 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Date;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 
 public class ServerWorker implements Runnable {
     private final Hashtable<String, List<String>> users;
@@ -31,7 +31,19 @@ public class ServerWorker implements Runnable {
     }
 
     private synchronized void handlePacket() {
-        String clientMessage = new String(this.packet.getData(), this.packet.getOffset(), this.packet.getLength());
+        String clientMessage;
+
+        if (CCMPConfig.DATA.isPROTOCOL_ENABLED()) {
+            byte[] message = new byte[this.packet.getLength()];
+            System.arraycopy(this.packet.getData(), 0, message, 0, this.packet.getLength());
+
+            byte[] decryptedBytes = AES.decrypt(message, CCMPConfig.DATA.getSECRET_KEY());
+
+            // Convert the decrypted message to a string
+            clientMessage = new String(decryptedBytes, StandardCharsets.UTF_8).trim();
+        } else {
+            clientMessage = new String(this.packet.getData(), this.packet.getOffset(), this.packet.getLength());
+        }
 
         // Print out the received message from the client
         System.out.print(new Date() + " " + this.packet.getAddress() + " on port " + this.packet.getPort() + " said: ");
@@ -169,7 +181,15 @@ public class ServerWorker implements Runnable {
 
     private void sendMessage(@NotNull String message) {
         try {
-            byte[] messageBytes = message.getBytes();
+            byte[] messageBytes;
+
+            // Create a CCMP packet if protocol is enabled
+            if (CCMPConfig.DATA.isPROTOCOL_ENABLED()) {
+                messageBytes = AES.encrypt(message,
+                        CCMPConfig.DATA.getSECRET_KEY());
+            } else {
+                messageBytes = message.getBytes();
+            }
 
             DatagramPacket dp = new DatagramPacket(messageBytes, messageBytes.length, this.packet.getAddress(), this.packet.getPort());
 

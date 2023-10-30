@@ -1,9 +1,12 @@
 package mk.ukim.finki.lab_01.client;
 
+import mk.ukim.finki.lab_01.ccmp.AES;
+import mk.ukim.finki.lab_01.config.CCMPConfig;
 import mk.ukim.finki.lab_01.config.ProtoConfig;
 
 import java.io.IOException;
 import java.net.*;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Scanner;
 
@@ -37,16 +40,12 @@ public class ClientWorker extends Thread {
 
                     this.socket.receive(incomingPacket);
 
-                    byte[] incomingData = incomingPacket.getData();
-
-                    String message = new String(incomingData, incomingPacket.getOffset(), incomingPacket.getLength());
-
-                    handleMessage(message);
+                    handleMessage(incomingPacket);
                 }
             } else {
                 System.out.println("Sending thread started on port: " + this.socket.getLocalPort());
 
-                testConnectionToServer(this.socket);
+                testConnectionToServer();
 
                 while (true) {
                     Scanner scanner = new Scanner(System.in);
@@ -66,30 +65,43 @@ public class ClientWorker extends Thread {
         }
     }
 
-    private void testConnectionToServer(DatagramSocket socket) {
-        try {
-            String testMessage = ProtoConfig.DATA.getTEST_CONNECTION_MSG();
-            byte[] messageBytes = testMessage.getBytes();
-
-            DatagramPacket dp = new DatagramPacket(messageBytes, messageBytes.length, this.address, this.serverPort);
-
-            socket.send(dp);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    private void testConnectionToServer() throws IOException {
+        sendMessage(ProtoConfig.DATA.getTEST_CONNECTION_MSG());
     }
 
     private void sendMessage(String message) throws IOException {
-        byte[] b = message.getBytes();
+        byte[] messageBytes;
 
-        DatagramPacket dp = new DatagramPacket(b, b.length, this.address, this.serverPort);
+        // Create a CCMP packet if protocol is enabled
+        if (CCMPConfig.DATA.isPROTOCOL_ENABLED()) {
+            messageBytes = AES.encrypt(message,
+                    CCMPConfig.DATA.getSECRET_KEY());
+        } else {
+            messageBytes = message.getBytes();
+        }
+
+        DatagramPacket dp = new DatagramPacket(messageBytes, messageBytes.length, this.address, this.serverPort);
 
         this.socket.send(dp);
     }
 
-    private void handleMessage(String message) {
+    private void handleMessage(DatagramPacket packet) {
         Date date = new Date();
-        System.out.println(date + " /Server said: \n" + message);
+
+        String serverMessage;
+        if (CCMPConfig.DATA.isPROTOCOL_ENABLED()) {
+            byte[] message = new byte[packet.getLength()];
+            System.arraycopy(packet.getData(), 0, message, 0, packet.getLength());
+
+            byte[] decryptedBytes = AES.decrypt(message, CCMPConfig.DATA.getSECRET_KEY());
+
+            // Convert the decrypted message to a string
+            serverMessage = new String(decryptedBytes, StandardCharsets.UTF_8).trim();
+        } else {
+            serverMessage = new String(packet.getData(), packet.getOffset(), packet.getLength());
+        }
+
+        System.out.println(date + " /Server said: \n" + serverMessage);
     }
 
     public static void main(String[] args) {
