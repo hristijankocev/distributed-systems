@@ -1,6 +1,7 @@
 package mk.ukim.finki.lab_01.client;
 
 import mk.ukim.finki.lab_01.ccmp.AES;
+import mk.ukim.finki.lab_01.ccmp.CCMPPacket;
 import mk.ukim.finki.lab_01.config.CCMPConfig;
 import mk.ukim.finki.lab_01.config.ProtoConfig;
 
@@ -70,14 +71,12 @@ public class ClientWorker extends Thread {
     }
 
     private void sendMessage(String message) throws IOException {
-        byte[] messageBytes;
+        byte[] messageBytes = message.getBytes(StandardCharsets.UTF_8);
 
         // Create a CCMP packet if protocol is enabled
         if (CCMPConfig.DATA.isPROTOCOL_ENABLED()) {
-            messageBytes = AES.encrypt(message,
-                    CCMPConfig.DATA.getSECRET_KEY());
-        } else {
-            messageBytes = message.getBytes();
+            CCMPPacket packet = new CCMPPacket(messageBytes, new byte[6]);
+            messageBytes = packet.bytes();
         }
 
         DatagramPacket dp = new DatagramPacket(messageBytes, messageBytes.length, this.address, this.serverPort);

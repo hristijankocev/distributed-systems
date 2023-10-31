@@ -23,21 +23,22 @@ public class AES {
         }
     }
 
-    public static byte[] encrypt(String message, String secret) {
+    public static byte[] encrypt(byte[] messageBytes, String secret) {
         try {
             setKey(secret);
             Cipher cipher = Cipher.getInstance("AES/ECB/NoPadding");
             cipher.init(Cipher.ENCRYPT_MODE, secretKey);
 
-            byte[] messageBytes = message.getBytes(StandardCharsets.UTF_8);
-
-            byte[] paddedMessage = getPaddedMessage(messageBytes);
+            byte[] paddedMessage = messageBytes;
+            if (messageBytes.length % 16 != 0) {
+                paddedMessage = getPaddedMessage(messageBytes);
+            }
 
             return cipher.doFinal(paddedMessage);
         } catch (Exception e) {
             System.out.println("Error while encrypting: " + e);
         }
-        return null;
+        return new byte[0];
     }
 
     public static byte[] decrypt(byte[] strToDecrypt, String secret) {
@@ -52,7 +53,7 @@ public class AES {
         return null;
     }
 
-    private static byte[] getPaddedMessage(byte[] messageBytes) {
+    public static byte[] getPaddedMessage(byte[] messageBytes) {
         // Pad the message to make it a multiple of 16 bytes
         int blockSize = 16;
         int paddingLength = blockSize - (messageBytes.length % blockSize);

@@ -1,6 +1,7 @@
 package mk.ukim.finki.lab_01.server;
 
 import mk.ukim.finki.lab_01.ccmp.AES;
+import mk.ukim.finki.lab_01.ccmp.CCMPPacket;
 import mk.ukim.finki.lab_01.config.CCMPConfig;
 import mk.ukim.finki.lab_01.config.ProtoConfig;
 import org.jetbrains.annotations.NotNull;
@@ -181,14 +182,12 @@ public class ServerWorker implements Runnable {
 
     private void sendMessage(@NotNull String message) {
         try {
-            byte[] messageBytes;
+            byte[] messageBytes = message.getBytes(StandardCharsets.UTF_8);
 
             // Create a CCMP packet if protocol is enabled
             if (CCMPConfig.DATA.isPROTOCOL_ENABLED()) {
-                messageBytes = AES.encrypt(message,
-                        CCMPConfig.DATA.getSECRET_KEY());
-            } else {
-                messageBytes = message.getBytes();
+                CCMPPacket packet = new CCMPPacket(messageBytes, new byte[6]);
+                messageBytes = packet.bytes();
             }
 
             DatagramPacket dp = new DatagramPacket(messageBytes, messageBytes.length, this.packet.getAddress(), this.packet.getPort());
