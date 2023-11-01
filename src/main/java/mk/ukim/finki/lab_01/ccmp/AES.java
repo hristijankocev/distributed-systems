@@ -55,6 +55,9 @@ public class AES {
 
     public static byte[] getPaddedMessage(byte[] messageBytes) {
         // Pad the message to make it a multiple of 16 bytes
+        if (messageBytes.length % 16 == 0)
+            return messageBytes;
+
         int blockSize = 16;
         int paddingLength = blockSize - (messageBytes.length % blockSize);
         byte[] paddedMessage = new byte[messageBytes.length + paddingLength];
