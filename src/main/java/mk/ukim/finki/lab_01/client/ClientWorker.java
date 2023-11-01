@@ -1,7 +1,9 @@
 package mk.ukim.finki.lab_01.client;
 
-import mk.ukim.finki.lab_01.ccmp.AES;
+import mk.ukim.finki.lab_01.ccmp.CCMP;
 import mk.ukim.finki.lab_01.ccmp.CCMPPacket;
+import mk.ukim.finki.lab_01.ccmp.exceptions.InvalidCCMPPacketException;
+import mk.ukim.finki.lab_01.ccmp.exceptions.MessageIntegrityViolationException;
 import mk.ukim.finki.lab_01.config.CCMPConfig;
 import mk.ukim.finki.lab_01.config.ProtoConfig;
 
@@ -92,10 +94,14 @@ public class ClientWorker extends Thread {
             byte[] message = new byte[packet.getLength()];
             System.arraycopy(packet.getData(), 0, message, 0, packet.getLength());
 
-            byte[] decryptedBytes = AES.decrypt(message, CCMPConfig.DATA.getSECRET_KEY());
+            try {
+                byte[] decryptedDataHex = CCMP.getDecryptedPayload(message);
+                serverMessage = new String(decryptedDataHex, StandardCharsets.UTF_8);
+            } catch (InvalidCCMPPacketException | MessageIntegrityViolationException e) {
+                e.printStackTrace();
+                return;
+            }
 
-            // Convert the decrypted message to a string
-            serverMessage = new String(decryptedBytes, StandardCharsets.UTF_8).trim();
         } else {
             serverMessage = new String(packet.getData(), packet.getOffset(), packet.getLength());
         }
