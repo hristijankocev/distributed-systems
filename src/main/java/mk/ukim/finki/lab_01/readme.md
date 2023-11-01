@@ -116,3 +116,65 @@ Some protocol configuration properties are defined in the ProtoConfig.java Enum 
 > Exiting client...  
 > Disconnected from the target VM, address: '127.0.0.1:64068', transport: 'socket'  
 > Process finished with exit code 0    
+
+## CCMP (Counter Mode Cipher Block Chaining Message Authentication Code Protocol) extension
+
+For the purpose of another exercise from the "Information Security" class, I extended this chat application with a 
+simplified freestyle version of CCMP.
+
+The goal is to add **confidentiality** and **integrity** for the exchanged messages
+between the clients and the server. We suppose that both parties have previously exchanged the encryption key in a 
+secure manner.
+
+**The packet structure:**
+
+| Field                        | Size (Bytes) |
+|:-----------------------------|:-------------|
+| MAC Header                   | 12           |
+| Packet Number                | 6            |
+| Frame Header                 | 6            |
+| Data (variable size)         | -            |
+| MIC (Message Integrity Code) | 8            |
+
+The encapsulation process is done as shown on the diagram:
+![](ccmp/images/Diagram-of-the-CCMP-encapsulation-process.png)
+
+
+In the first stage (data integrity) the **MIC** is generated in a **CBC** (Cypher-Block Chaining) mode: 
+  - generate an **IV** (Initialization Vector) or so a called **nonce** (number only used once) 104 bits size
+      - 48 bit Packet Number
+      - 48 bit Source MAC
+      - 8 bit QoS priority
+  - pad the **nonce** with an additional 24 bits and encrypt it with **AES (128 bit)**
+  - apply **XOR** between the encrypted nonce and the first 16 byte block from the frame header
+  - take the output from the previous step, **XOR** it with the next 16 byte block and encrypt it
+  - repeat these steps for both the **frame header** and the **data**
+  - take the **most significant 64 bits** from the end result and use it as the **MIC**
+
+In the second stage a block cypher in **Counter Mode** (CTR) is used to produce the data confidentiality part:
+  - initialize a 24 bit Counter Preload (PL)
+  - encrypt it with **AES** (128)
+  - **XOR** the encrypted PL with 128 bit block of data
+  - increment the PL by 1
+  - do these steps for the remaining 128 bit blocks
+
+After both stages, concatenate the MIC to the encrypted data.
+
+In order to be sure that the data was not tampered with, the receiving side can validate that by computing the **MIC**
+for the received data and compare it with the **MIC** he received.
+
+As for **decrypting** the data, it's as easy as encrypting it again with the same key.
+
+### Usage
+In the `CCMPConfig.java` you can set `PROTOCOL_ENABLED` to **true** if you want the protocol to be used in the 
+communication.
+
+### Traffic comparison
+- Without using CCMP:
+![](ccmp/images/clear-text.png)
+We can clearly see that the content of the packets is readable.
+
+
+- With CCMP
+![](ccmp/images/with-ccmp.png)
+We no longer have clear text, but there's some additional overhead because of the packet structure.   
